@@ -9,13 +9,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
-ui = input("Si vous voulez avoir l'interface ecrivez yes sinon mettez autres choses: ")
-
 email = input("Votre email: ")
 
 pwd = input("Votre mode passe: ")
 
-
+ui = input("Si vous voulez avoir l'interface ecrivez yes sinon mettez autres choses: ")
 
 chrome_options = Options()
 chrome_options.add_argument("--no-sandbox")
@@ -54,79 +52,75 @@ input(f"Mets le code {chiffre} sur l'application authentificator et ensuite cliq
 btnStayConnect = driver.find_element(By.CSS_SELECTOR, ".win-button")
 btnStayConnect.click()
 
-time.sleep(2)
-
-course_names = driver.find_elements(By.CSS_SELECTOR, ".multiline span[aria-hidden='true']")
 
 
+def process_courses():
 
+    time.sleep(3)
 
+    course_names = driver.find_elements(By.CSS_SELECTOR, ".multiline span[aria-hidden='true']")
 
+    courseArray = []
 
+    i = 0
 
+    for course in course_names:
+        if course.text.strip():
+            courseArray.append(course.text.strip())
+            print(f"{i} : {course.text.strip()}")
+            i += 1
 
-courseArray = []
+    choice = int(input("Entrez le numéro du cours que vous souhaitez sélectionner : "))
 
-i = 0
-
-for course in course_names:
-    if course.text.strip():
-        courseArray.append(course.text.strip())
-        print(f"{i} : {course.text.strip()}")
-        i += 1
-
-choice = int(input("Entrez le numéro du cours que vous souhaitez sélectionner : "))
-
-try:
-    if 0 <= choice < len(courseArray):
-        selected_course_name = courseArray[choice]
-        print(f"Vous avez choisi le cours : {selected_course_name}")
-
-
-        selected_course_link = driver.find_elements(By.XPATH, f"//span[contains(text(), '{selected_course_name}')]/ancestor::a")
-
-        if selected_course_link:
-            selected_course_link[0].click()
-            print(f"Vous avez sélectionné le cours : {selected_course_name}")
-        else:
-            print(f"Aucun lien trouvé pour le cours : {selected_course_name}")
-
-    else:
-        print("Numéro de cours invalide.")
-except ValueError:
-    print("Veuillez entrer un numéro valide.")
-
-time.sleep(2)
-
-
-
-
-
-
-
-
-
-
-links = driver.find_elements(By.CLASS_NAME, 'courseindex-link')
-
-for link in links:
     try:
-        href = link.get_attribute('href')
-        
-        if href and href.startswith('https://learn.s2.rpn.ch/mod/resource/view.php?id='):
-            driver.execute_script("window.open(arguments[0], '_blank');", href)
-            driver.switch_to.window(driver.window_handles[0])
+        if 0 <= choice < len(courseArray):
+            selected_course_name = courseArray[choice]
+
+            selected_course_link = driver.find_elements(By.XPATH, f"//span[contains(text(), '{selected_course_name}')]/ancestor::a")
+
+            selected_course_link[0].click()
+
         else:
-            action = ActionChains(driver)
-            action.context_click(link).perform()
+            print("Numéro de cours invalide.")
+    except ValueError:
+        print("Veuillez entrer un numéro valide.")
 
-    except Exception as e:
-        print(f"Erreur en traitant le lien: {e}")
-
-
+    time.sleep(2)
 
 
 
-print("C'est fini masterclass.")
+    links = driver.find_elements(By.CLASS_NAME, 'courseindex-link')
 
-input()
+    for link in links:
+        try:
+            href = link.get_attribute('href')
+            
+            if href and href.startswith('https://learn.s2.rpn.ch/mod/resource/view.php?id='):
+                driver.execute_script("window.open(arguments[0], '_blank');", href)
+                driver.switch_to.window(driver.window_handles[0])
+            else:
+                action = ActionChains(driver)
+                action.context_click(link).perform()
+
+        except Exception as e:
+           print(f"Erreur en traitant le lien: {e}") 
+
+process_courses()
+
+
+
+again = input("Si vous voulez choisir un nouveau cours ecrivez yes sinon mettez autres choses: ")
+
+if again.lower() == "yes":
+    main_window = driver.window_handles[0]
+
+    for handle in driver.window_handles:
+        if handle != main_window:
+            driver.switch_to.window(handle)
+            driver.close()
+
+    driver.switch_to.window(main_window)
+    driver.get("https://learn.s2.rpn.ch/my/courses.php")
+    process_courses()
+else:
+    driver.quit()
