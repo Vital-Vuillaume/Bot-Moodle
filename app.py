@@ -43,16 +43,18 @@ inputPwd.send_keys(pwd, Keys.ENTER)
 
 time.sleep(3)
 
-div_element = driver.find_element(By.ID, "idRichContext_DisplaySign")
+try:
+    div_element = driver.find_element(By.ID, "idRichContext_DisplaySign")
 
-chiffre = div_element.text
+    chiffre = div_element.text
 
-input(f"Mets le code {chiffre} sur l'application authentificator et ensuite cliquez enter: ")
+    input(f"Mets le code {chiffre} sur l'application authentificator et ensuite cliquez enter: ")
 
-btnStayConnect = driver.find_element(By.CSS_SELECTOR, ".win-button")
-btnStayConnect.click()
+    btnStayConnect = driver.find_element(By.CSS_SELECTOR, ".win-button")
+    btnStayConnect.click()
 
-
+except Exception as e:
+    print(f"Erreur en traitant le lien: {e}") 
 
 def process_courses():
 
